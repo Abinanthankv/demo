@@ -45,21 +45,69 @@
         </div>
     </header>
 
-    <!-- Recipe Hero -->
-    <section class="recipe-hero" id="recipeHero">
-        <img src="" alt="" class="recipe-hero-image" id="heroImage">
-        <div class="recipe-hero-overlay"></div>
-        <div class="recipe-hero-content container">
-            <span class="recipe-hero-category" id="heroCategory">Loading...</span>
-            <h1 class="recipe-hero-title" id="heroTitle">Loading Recipe...</h1>
-            <div class="recipe-meta-bar" id="heroMeta">
-                <!-- Meta info will be loaded here -->
+    <!-- Recipe Header - Horizontal Layout -->
+    <section class="recipe-header-section">
+        <div class="container">
+            <a href="index.html" class="back-link">← Back</a>
+
+            <div class="recipe-header-grid">
+                <!-- Image Side -->
+                <div class="recipe-image-card">
+                    <img src="" alt="" class="recipe-main-image" id="heroImage">
+                    <!-- Video Play Button -->
+                    <button class="play-overlay-btn" id="playVideoBtn" style="display: none;">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                        </svg>
+                    </button>
+                    <!-- Bookmark Button -->
+                    <button class="recipe-bookmark-large" id="bookmarkBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Details Side -->
+                <div class="recipe-details-card">
+                    <h1 class="recipe-detail-title" id="heroTitle">Loading...</h1>
+
+                    <!-- Action Buttons -->
+                    <div class="recipe-quick-actions" id="quickActions">
+                        <button class="quick-action-btn" id="shareRecipeBtn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="18" cy="5" r="3"></circle>
+                                <circle cx="6" cy="12" r="3"></circle>
+                                <circle cx="18" cy="19" r="3"></circle>
+                                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+                            </svg>
+                            <span>Share</span>
+                        </button>
+                        <button class="quick-action-btn" id="exportRecipeBtn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                            <span>Export</span>
+                        </button>
+                    </div>
+
+                    <!-- Description -->
+                    <p class="recipe-detail-desc" id="heroDescription">Loading description...</p>
+
+                    <!-- Meta Info -->
+                    <div class="recipe-meta-chips" id="heroMeta">
+                        <!-- Will be populated by JS -->
+                    </div>
+
+                    <!-- Tags -->
+                    <div class="recipe-tags" id="recipeTags">
+                        <span class="tag" id="heroCategory">Loading</span>
+                    </div>
+                </div>
             </div>
-            <!-- Play Video Button -->
-            <button class="hero-play-btn" id="playVideoBtn" style="display: none;">
-                <span class="play-icon">▶</span>
-                <span class="play-text">Watch Video</span>
-            </button>
         </div>
     </section>
 
@@ -73,37 +121,36 @@
         </div>
     </div>
 
-    <!-- Recipe Content -->
-    <main class="container">
-        <div class="recipe-actions-bar">
-            <a href="index.html" class="back-btn">
-                ← Back to Recipes
-            </a>
-            <div class="recipe-action-btns">
-                <button class="action-btn" id="shareRecipeBtn" title="Share">📤 Share</button>
-                <button class="action-btn" id="exportRecipeBtn" title="Export as JSON">📥 Export</button>
+    <!-- Recipe Content - Side by Side -->
+    <main class="recipe-main-content">
+        <div class="container">
+            <!-- Content Toolbar -->
+            <div class="content-toolbar">
+                <div class="toolbar-chips">
+                    <span class="toolbar-chip" id="servingsChip">� 4 serves</span>
+                </div>
             </div>
-        </div>
 
-        <div class="recipe-content">
-            <!-- Ingredients Sidebar -->
-            <aside class="ingredients-card">
-                <h2 class="ingredients-title">📝 Ingredients</h2>
-                <div id="ingredientsList">
-                    <!-- Ingredients will be loaded here -->
-                </div>
-                <div class="ingredients-actions">
-                    <button class="add-to-list-btn" id="addSelectedBtn">🛒 Add Selected</button>
-                    <button class="add-to-list-btn" id="addAllBtn">➕ Add All</button>
-                </div>
-            </aside>
+            <div class="recipe-two-column">
+                <!-- Ingredients -->
+                <aside class="ingredients-panel">
+                    <h2 class="panel-title">Ingredients</h2>
+                    <div id="ingredientsList">
+                        <!-- Ingredients will be loaded here -->
+                    </div>
+                    <div class="ingredients-actions">
+                        <button class="add-to-list-btn" id="addSelectedBtn">Add Selected</button>
+                        <button class="add-to-list-btn secondary" id="addAllBtn">Add All</button>
+                    </div>
+                </aside>
 
-            <!-- Steps Section -->
-            <div class="steps-section">
-                <h2 class="steps-title">👨‍🍳 Instructions</h2>
-                <div id="stepsList">
-                    <!-- Steps will be loaded here -->
-                </div>
+                <!-- Steps -->
+                <section class="steps-panel">
+                    <h2 class="panel-title">Instructions</h2>
+                    <div id="stepsList">
+                        <!-- Steps will be loaded here -->
+                    </div>
+                </section>
             </div>
         </div>
     </main>

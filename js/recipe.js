@@ -224,21 +224,47 @@ function renderRecipeHero(recipe) {
     const heroCategory = document.getElementById('heroCategory');
     const heroTitle = document.getElementById('heroTitle');
     const heroMeta = document.getElementById('heroMeta');
+    const heroDescription = document.getElementById('heroDescription');
+    const servingsChip = document.getElementById('servingsChip');
+    const bookmarkBtn = document.getElementById('bookmarkBtn');
 
     // Update page title
     document.title = `${recipe.title} | Cookbook`;
 
-    heroImage.src = recipe.image;
-    heroImage.alt = recipe.title;
-    heroCategory.textContent = recipe.category;
-    heroTitle.textContent = recipe.title;
+    if (heroImage) {
+        heroImage.src = recipe.image;
+        heroImage.alt = recipe.title;
+    }
+    if (heroCategory) heroCategory.textContent = recipe.category;
+    if (heroTitle) heroTitle.textContent = recipe.title;
+    if (heroDescription) heroDescription.textContent = recipe.description || '';
 
-    heroMeta.innerHTML = `
-    <span>⏱️ Prep: ${recipe.prepTime}</span>
-    <span>🔥 Cook: ${recipe.cookTime}</span>
-    <span>👤 Serves: ${recipe.servings}</span>
-    <span>📊 ${recipe.difficulty}</span>
-  `;
+    // Meta chips with icons
+    if (heroMeta) {
+        heroMeta.innerHTML = `
+            <span class="meta-chip">👤 ${recipe.servings} servings</span>
+            <span class="meta-chip">⏱️ Prep: ${recipe.prepTime}</span>
+            <span class="meta-chip">🔥 Cook: ${recipe.cookTime}</span>
+            <span class="meta-chip">📊 ${recipe.difficulty}</span>
+        `;
+    }
+
+    // Update servings chip
+    if (servingsChip) {
+        servingsChip.textContent = `👤 ${recipe.servings} serves`;
+    }
+
+    // Bookmark button functionality
+    if (bookmarkBtn && typeof Bookmarks !== 'undefined') {
+        const isBookmarked = Bookmarks.isBookmarked(recipe.id);
+        if (isBookmarked) bookmarkBtn.classList.add('active');
+
+        bookmarkBtn.addEventListener('click', () => {
+            const nowBookmarked = Bookmarks.toggle(recipe.id);
+            bookmarkBtn.classList.toggle('active', nowBookmarked);
+            showToast(nowBookmarked ? '🔖 Saved to bookmarks!' : '❌ Removed from bookmarks');
+        });
+    }
 
     // Show play button if video exists
     const playBtn = document.getElementById('playVideoBtn');
@@ -578,6 +604,6 @@ function initShareExport(recipe) {
 }
 
 // Run on page load
-if (document.getElementById('recipeHero')) {
+if (document.getElementById('heroTitle')) {
     initRecipePage();
 }
