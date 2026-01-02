@@ -3,18 +3,22 @@
  * Provides offline caching for the cookbook application
  */
 
-const CACHE_NAME = 'cookbook-v1';
+const CACHE_NAME = 'cookbook-v2';
+
+// Get the base path dynamically (works for both localhost and GitHub Pages)
+const BASE_PATH = self.location.pathname.replace('/sw.js', '');
+
 const STATIC_ASSETS = [
-    '/',
-    '/index.html',
-    '/recipe.html',
-    '/css/styles.css',
-    '/js/app.js',
-    '/js/recipe.js',
-    '/data/recipes.json',
-    '/icons/icon-192.png',
-    '/icons/icon-512.png'
-];
+    './',
+    './index.html',
+    './recipe.html',
+    './css/styles.css',
+    './js/app.js',
+    './js/recipe.js',
+    './data/recipes.json',
+    './icons/icon-192.png',
+    './icons/icon-512.png'
+].map(path => BASE_PATH + path.substring(1));
 
 // Install event - cache static assets
 self.addEventListener('install', (event) => {
@@ -97,7 +101,7 @@ self.addEventListener('fetch', (event) => {
                     .catch(() => {
                         // Return offline fallback for HTML pages
                         if (event.request.destination === 'document') {
-                            return caches.match('/index.html');
+                            return caches.match(BASE_PATH + '/index.html');
                         }
                     });
             })
