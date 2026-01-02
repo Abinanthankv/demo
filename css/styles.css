@@ -852,3 +852,226 @@ ol {
   animation: shimmer 1.5s infinite;
   border-radius: var(--radius-sm);
 }
+
+/* ========================================
+   Cooking Timer
+   ======================================== */
+
+/* Timer Button in Step Cards */
+.timer-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  color: var(--color-text-inverse);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  margin-top: var(--space-md);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+
+.timer-btn:hover {
+  transform: scale(1.05);
+  box-shadow: var(--shadow-md);
+}
+
+.timer-btn:active {
+  transform: scale(0.98);
+}
+
+/* Floating Timer Widget */
+.timer-widget {
+  position: fixed;
+  bottom: var(--space-xl);
+  right: var(--space-xl);
+  background: var(--color-bg-card);
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-lg);
+  z-index: 1000;
+  min-width: 280px;
+  animation: slideUp 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.timer-widget.hidden {
+  display: none;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.timer-widget-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-md);
+}
+
+.timer-widget-title {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-light);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.timer-widget-close {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-full);
+  background: var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.timer-widget-close:hover {
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+}
+
+.timer-display {
+  font-size: var(--font-size-4xl);
+  font-weight: 800;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text);
+  margin-bottom: var(--space-md);
+}
+
+.timer-step-name {
+  text-align: center;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-light);
+  margin-bottom: var(--space-lg);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.timer-controls {
+  display: flex;
+  gap: var(--space-sm);
+  justify-content: center;
+}
+
+.timer-control-btn {
+  flex: 1;
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+}
+
+.timer-control-btn.primary {
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+}
+
+.timer-control-btn.primary:hover {
+  background: var(--color-primary-dark);
+}
+
+.timer-control-btn.secondary {
+  background: var(--color-border);
+  color: var(--color-text);
+}
+
+.timer-control-btn.secondary:hover {
+  background: var(--color-text-light);
+  color: var(--color-text-inverse);
+}
+
+/* Timer Progress Ring */
+.timer-progress {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  margin: 0 auto var(--space-md);
+}
+
+.timer-progress svg {
+  transform: rotate(-90deg);
+}
+
+.timer-progress-circle {
+  fill: none;
+  stroke: var(--color-border);
+  stroke-width: 8;
+}
+
+.timer-progress-value {
+  fill: none;
+  stroke: var(--color-primary);
+  stroke-width: 8;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1s linear;
+}
+
+.timer-progress-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Timer Complete State */
+.timer-widget.complete {
+  border-color: var(--color-accent);
+  animation: timerPulse 0.5s ease 3;
+}
+
+.timer-widget.complete .timer-display {
+  color: var(--color-accent);
+}
+
+@keyframes timerPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 0 30px rgba(39, 174, 96, 0.4);
+  }
+}
+
+/* Timer Paused State */
+.timer-widget.paused .timer-display {
+  opacity: 0.6;
+}
+
+/* Mobile Responsive */
+@media (max-width: 480px) {
+  .timer-widget {
+    left: var(--space-md);
+    right: var(--space-md);
+    bottom: var(--space-md);
+    min-width: auto;
+  }
+}

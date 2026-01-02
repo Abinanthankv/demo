@@ -40,6 +40,7 @@
           "description": "Mix everything well and let it rest for about 5 minutes. This allows the flavors to meld and the vegetables to release some moisture.",
           "startTime": "1:40",
           "endTime": "1:44",
+          "timerMinutes": 5,
           "tip": "Resting the mixture enhances the flavor of the final omelette."
         },
         {
@@ -56,6 +57,7 @@
           "description": "Pour the whisked eggs into the vegetable and spice mixture and mix well. Heat a pan with 1 tsp oil, pour a ladle of the mixture, and cook on medium flame until one side is done. Flip and cook for another 1-2 minutes until both sides are golden brown.",
           "startTime": "2:11",
           "endTime": "3:07",
+          "timerMinutes": 2,
           "tip": "Cook on medium heat to ensure the omelette is cooked through without burning."
         }
       ]
@@ -105,6 +107,7 @@
           "description": "Let the combined mixture rest for about 15 minutes before cooking.",
           "startTime": "02:30",
           "endTime": "02:34",
+          "timerMinutes": 15,
           "tip": "Resting allows the potatoes to soak up the egg, resulting in a more flavorful and cohesive omelette."
         },
         {
@@ -113,6 +116,7 @@
           "description": "Heat 2 tsp oil in a small pan and pour the mixture. Cover and cook on medium flame for 5 minutes. Use a plate to flip the thick omelette and cook the other side for 5 more minutes.",
           "startTime": "02:35",
           "endTime": "04:38",
+          "timerMinutes": 5,
           "tip": "Using a plate to flip is the easiest way to handle the weight of a thick Spanish omelette."
         }
       ]

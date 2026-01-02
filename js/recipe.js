@@ -3,6 +3,219 @@
  */
 
 // ========================================
+// Cooking Timer System
+// ========================================
+
+const CookingTimer = {
+    intervalId: null,
+    totalSeconds: 0,
+    remainingSeconds: 0,
+    isRunning: false,
+    stepName: '',
+    widget: null,
+
+    // Create and inject the timer widget HTML
+    createWidget() {
+        if (this.widget) return;
+
+        const widgetHtml = `
+            <div class="timer-widget hidden" id="timerWidget">
+                <div class="timer-widget-header">
+                    <span class="timer-widget-title">⏱️ Cooking Timer</span>
+                    <button class="timer-widget-close" id="timerClose">✕</button>
+                </div>
+                <div class="timer-progress">
+                    <svg width="120" height="120">
+                        <circle class="timer-progress-circle" cx="60" cy="60" r="52"></circle>
+                        <circle class="timer-progress-value" id="timerProgressValue" cx="60" cy="60" r="52" 
+                            stroke-dasharray="326.7" stroke-dashoffset="0"></circle>
+                    </svg>
+                    <div class="timer-progress-text" id="timerProgressText">00:00</div>
+                </div>
+                <div class="timer-step-name" id="timerStepName">Step</div>
+                <div class="timer-controls">
+                    <button class="timer-control-btn primary" id="timerPlayPause">▶️ Start</button>
+                    <button class="timer-control-btn secondary" id="timerReset">🔄 Reset</button>
+                </div>
+            </div>
+        `;
+
+        document.body.insertAdjacentHTML('beforeend', widgetHtml);
+        this.widget = document.getElementById('timerWidget');
+
+        // Bind event listeners
+        document.getElementById('timerClose').addEventListener('click', () => this.hide());
+        document.getElementById('timerPlayPause').addEventListener('click', () => this.togglePlayPause());
+        document.getElementById('timerReset').addEventListener('click', () => this.reset());
+    },
+
+    // Start a new timer
+    start(minutes, stepName) {
+        this.createWidget();
+        this.stop();
+
+        this.totalSeconds = minutes * 60;
+        this.remainingSeconds = this.totalSeconds;
+        this.stepName = stepName;
+        this.isRunning = true;
+
+        // Update UI
+        document.getElementById('timerStepName').textContent = stepName;
+        this.updateDisplay();
+        this.updatePlayPauseButton();
+
+        // Show widget
+        this.widget.classList.remove('hidden', 'complete', 'paused');
+
+        // Start countdown
+        this.intervalId = setInterval(() => this.tick(), 1000);
+    },
+
+    // Timer tick (every second)
+    tick() {
+        if (!this.isRunning) return;
+
+        this.remainingSeconds--;
+        this.updateDisplay();
+
+        if (this.remainingSeconds <= 0) {
+            this.complete();
+        }
+    },
+
+    // Update the display
+    updateDisplay() {
+        const minutes = Math.floor(this.remainingSeconds / 60);
+        const seconds = this.remainingSeconds % 60;
+        const timeStr = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+        document.getElementById('timerProgressText').textContent = timeStr;
+
+        // Update progress ring
+        const circumference = 326.7; // 2 * PI * 52
+        const progress = this.remainingSeconds / this.totalSeconds;
+        const offset = circumference * (1 - progress);
+        document.getElementById('timerProgressValue').style.strokeDashoffset = offset;
+    },
+
+    // Toggle play/pause
+    togglePlayPause() {
+        if (this.remainingSeconds <= 0) {
+            this.reset();
+            return;
+        }
+
+        this.isRunning = !this.isRunning;
+        this.widget.classList.toggle('paused', !this.isRunning);
+        this.updatePlayPauseButton();
+
+        if (this.isRunning && !this.intervalId) {
+            this.intervalId = setInterval(() => this.tick(), 1000);
+        }
+    },
+
+    // Update play/pause button text
+    updatePlayPauseButton() {
+        const btn = document.getElementById('timerPlayPause');
+        if (this.remainingSeconds <= 0) {
+            btn.textContent = '🔄 Restart';
+        } else if (this.isRunning) {
+            btn.textContent = '⏸️ Pause';
+        } else {
+            btn.textContent = '▶️ Resume';
+        }
+    },
+
+    // Reset timer
+    reset() {
+        this.remainingSeconds = this.totalSeconds;
+        this.isRunning = true;
+        this.widget.classList.remove('complete', 'paused');
+        this.updateDisplay();
+        this.updatePlayPauseButton();
+
+        if (!this.intervalId) {
+            this.intervalId = setInterval(() => this.tick(), 1000);
+        }
+    },
+
+    // Timer complete
+    complete() {
+        this.stop();
+        this.widget.classList.add('complete');
+        document.getElementById('timerProgressText').textContent = '✓ Done!';
+        this.updatePlayPauseButton();
+
+        // Play notification sound
+        this.playNotification();
+    },
+
+    // Play notification sound
+    playNotification() {
+        // Try to play a notification sound using Web Audio API
+        try {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+            // Create a pleasant chime sound
+            const playTone = (freq, startTime, duration) => {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+
+                oscillator.frequency.value = freq;
+                oscillator.type = 'sine';
+
+                gainNode.gain.setValueAtTime(0.3, startTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
+
+                oscillator.start(startTime);
+                oscillator.stop(startTime + duration);
+            };
+
+            const now = audioContext.currentTime;
+            playTone(523.25, now, 0.2);       // C5
+            playTone(659.25, now + 0.15, 0.2); // E5
+            playTone(783.99, now + 0.3, 0.4);  // G5
+
+        } catch (e) {
+            console.log('Audio notification not available');
+        }
+
+        // Also try browser notification
+        if ('Notification' in window && Notification.permission === 'granted') {
+            new Notification('⏱️ Timer Complete!', {
+                body: `${this.stepName} is ready!`,
+                icon: 'icons/icon-192.png'
+            });
+        }
+    },
+
+    // Stop timer
+    stop() {
+        if (this.intervalId) {
+            clearInterval(this.intervalId);
+            this.intervalId = null;
+        }
+        this.isRunning = false;
+    },
+
+    // Hide widget
+    hide() {
+        this.stop();
+        if (this.widget) {
+            this.widget.classList.add('hidden');
+        }
+    }
+};
+
+// Request notification permission on page load
+if ('Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission();
+}
+
+// ========================================
 // Recipe Page Rendering
 // ========================================
 
@@ -97,6 +310,13 @@ function renderSteps(steps, videoUrl) {
             mediaHtml = '';
         }
 
+        // Timer button HTML
+        const timerHtml = step.timerMinutes ? `
+            <button class="timer-btn" onclick="CookingTimer.start(${step.timerMinutes}, 'Step ${step.step}: ${step.title}')">
+                ⏱️ Set Timer (${step.timerMinutes} min)
+            </button>
+        ` : '';
+
         return `
             <article class="step-card">
                 ${mediaHtml}
@@ -109,6 +329,7 @@ function renderSteps(steps, videoUrl) {
                             <strong>💡 Tip:</strong> ${step.tip}
                         </div>
                     ` : ''}
+                    ${timerHtml}
                 </div>
             </article>
         `;
