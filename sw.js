@@ -3,7 +3,7 @@
  * Provides offline caching for the cookbook application
  */
 
-const CACHE_NAME = 'cookbook-v2';
+const CACHE_NAME = 'cookbook-v3';
 
 // Get the base path dynamically (works for both localhost and GitHub Pages)
 const BASE_PATH = self.location.pathname.replace('/sw.js', '');
@@ -12,9 +12,11 @@ const STATIC_ASSETS = [
     './',
     './index.html',
     './recipe.html',
+    './shopping.html',
     './css/styles.css',
     './js/app.js',
     './js/recipe.js',
+    './js/shopping.js',
     './data/recipes.json',
     './icons/icon-192.png',
     './icons/icon-512.png'

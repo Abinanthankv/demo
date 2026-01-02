@@ -383,6 +383,58 @@ function renderRecipe(recipe) {
     renderRecipeHero(recipe);
     renderIngredients(recipe.ingredients);
     renderSteps(recipe.steps, recipe.videoUrl);
+    initShoppingButtons(recipe);
+}
+
+// ========================================
+// Shopping List Integration
+// ========================================
+
+function initShoppingButtons(recipe) {
+    const addSelectedBtn = document.getElementById('addSelectedBtn');
+    const addAllBtn = document.getElementById('addAllBtn');
+
+    if (!addSelectedBtn || !addAllBtn) return;
+
+    // Add Selected - add only checked ingredients
+    addSelectedBtn.addEventListener('click', () => {
+        const checkboxes = document.querySelectorAll('.ingredient-checkbox:checked');
+        const selected = Array.from(checkboxes).map(cb => {
+            return cb.nextElementSibling.textContent.trim();
+        });
+
+        if (selected.length === 0) {
+            showToast('Select ingredients first');
+            return;
+        }
+
+        if (typeof ShoppingList !== 'undefined') {
+            ShoppingList.addItems(selected, recipe.title);
+            showToast(`Added ${selected.length} item${selected.length > 1 ? 's' : ''} to list`);
+        }
+    });
+
+    // Add All - add all ingredients
+    addAllBtn.addEventListener('click', () => {
+        if (typeof ShoppingList !== 'undefined') {
+            ShoppingList.addItems(recipe.ingredients, recipe.title);
+            showToast(`Added ${recipe.ingredients.length} items to list`);
+        }
+    });
+}
+
+// Show toast notification
+function showToast(message) {
+    // Remove existing toast
+    const existing = document.querySelector('.toast');
+    if (existing) existing.remove();
+
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = message;
+    document.body.appendChild(toast);
+
+    setTimeout(() => toast.remove(), 2500);
 }
 
 // ========================================
