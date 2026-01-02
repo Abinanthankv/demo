@@ -266,12 +266,62 @@ function renderRecipeHero(recipe) {
         });
     }
 
+    // Populate nutrition data (use recipe data or defaults)
+    const nutrition = recipe.nutrition || {
+        calories: '~350',
+        carbs: '45g',
+        fat: '12g',
+        protein: '18g'
+    };
+    const nutritionCalories = document.getElementById('nutritionCalories');
+    const nutritionCarbs = document.getElementById('nutritionCarbs');
+    const nutritionFat = document.getElementById('nutritionFat');
+    const nutritionProtein = document.getElementById('nutritionProtein');
+
+    if (nutritionCalories) nutritionCalories.textContent = nutrition.calories;
+    if (nutritionCarbs) nutritionCarbs.textContent = nutrition.carbs;
+    if (nutritionFat) nutritionFat.textContent = nutrition.fat;
+    if (nutritionProtein) nutritionProtein.textContent = nutrition.protein;
+
+    // Initialize recipe tabs for mobile
+    initRecipeTabs();
+
     // Show play button if video exists
     const playBtn = document.getElementById('playVideoBtn');
     if (playBtn && recipe.videoUrl) {
         playBtn.style.display = 'flex';
         initVideoModal(recipe.videoUrl);
     }
+}
+
+// ========================================
+// Recipe Tabs (Mobile)
+// ========================================
+
+function initRecipeTabs() {
+    const tabs = document.querySelectorAll('.recipe-tab');
+    const ingredientsPanel = document.querySelector('.ingredients-panel');
+    const stepsPanel = document.querySelector('.steps-panel');
+
+    if (!tabs.length || !ingredientsPanel || !stepsPanel) return;
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            // Update active tab
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+
+            // Show/hide panels
+            const tabName = tab.dataset.tab;
+            if (tabName === 'ingredients') {
+                ingredientsPanel.removeAttribute('data-hidden');
+                stepsPanel.setAttribute('data-hidden', 'true');
+            } else {
+                ingredientsPanel.setAttribute('data-hidden', 'true');
+                stepsPanel.removeAttribute('data-hidden');
+            }
+        });
+    });
 }
 
 // ========================================

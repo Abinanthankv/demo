@@ -48,7 +48,22 @@
     <!-- Recipe Header - Horizontal Layout -->
     <section class="recipe-header-section">
         <div class="container">
-            <a href="index.html" class="back-link">← Back</a>
+            <!-- Mobile Back & Bookmark -->
+            <div class="mobile-nav-row mobile-only">
+                <a href="index.html" class="mobile-back-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7" />
+                    </svg>
+                </a>
+                <button class="mobile-bookmark-btn" id="bookmarkBtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Desktop Back Link -->
+            <a href="index.html" class="back-link desktop-only">← Back to Recipes</a>
 
             <div class="recipe-header-grid">
                 <!-- Image Side -->
@@ -60,20 +75,14 @@
                             <polygon points="5 3 19 12 5 21 5 3"></polygon>
                         </svg>
                     </button>
-                    <!-- Bookmark Button -->
-                    <button class="recipe-bookmark-large" id="bookmarkBtn">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
-                        </svg>
-                    </button>
                 </div>
 
                 <!-- Details Side -->
                 <div class="recipe-details-card">
                     <h1 class="recipe-detail-title" id="heroTitle">Loading...</h1>
 
-                    <!-- Action Buttons -->
-                    <div class="recipe-quick-actions" id="quickActions">
+                    <!-- Action Buttons (Desktop) -->
+                    <div class="recipe-quick-actions desktop-only" id="quickActions">
                         <button class="quick-action-btn" id="shareRecipeBtn">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <circle cx="18" cy="5" r="3"></circle>
@@ -97,8 +106,32 @@
                     <!-- Description -->
                     <p class="recipe-detail-desc" id="heroDescription">Loading description...</p>
 
-                    <!-- Meta Info -->
-                    <div class="recipe-meta-chips" id="heroMeta">
+                    <!-- Nutritional Info -->
+                    <div class="nutrition-card" id="nutritionCard">
+                        <div class="nutrition-item">
+                            <span class="nutrition-icon">🔥</span>
+                            <span class="nutrition-value" id="nutritionCalories">--</span>
+                            <span class="nutrition-label">Calories</span>
+                        </div>
+                        <div class="nutrition-item">
+                            <span class="nutrition-icon">🍞</span>
+                            <span class="nutrition-value" id="nutritionCarbs">--</span>
+                            <span class="nutrition-label">Carbs</span>
+                        </div>
+                        <div class="nutrition-item">
+                            <span class="nutrition-icon">💧</span>
+                            <span class="nutrition-value" id="nutritionFat">--</span>
+                            <span class="nutrition-label">Fat</span>
+                        </div>
+                        <div class="nutrition-item">
+                            <span class="nutrition-icon">🥩</span>
+                            <span class="nutrition-value" id="nutritionProtein">--</span>
+                            <span class="nutrition-label">Protein</span>
+                        </div>
+                    </div>
+
+                    <!-- Meta Info (Desktop) -->
+                    <div class="recipe-meta-chips desktop-only" id="heroMeta">
                         <!-- Will be populated by JS -->
                     </div>
 
@@ -107,6 +140,12 @@
                         <span class="tag" id="heroCategory">Loading</span>
                     </div>
                 </div>
+            </div>
+
+            <!-- Recipe Tabs (Mobile) -->
+            <div class="recipe-tabs mobile-only">
+                <button class="recipe-tab active" data-tab="ingredients">📝 Ingredients</button>
+                <button class="recipe-tab" data-tab="instructions">👨‍🍳 Instructions</button>
             </div>
         </div>
     </section>

@@ -248,7 +248,8 @@ function getRecipeFromForm() {
         ingredients,
         steps,
         image,
-        videoUrl
+        videoUrl,
+        nutrition: originalRecipe?.nutrition || null
     };
 }
 
@@ -384,6 +385,12 @@ Please watch/analyze the video and extract the recipe in this exact JSON format:
     "1 cup ingredient",
     "2 tbsp ingredient"
   ],
+  "nutrition": {
+    "calories": "350kcal",
+    "carbs": "45g",
+    "fat": "12g",
+    "protein": "18g"
+  },
   "steps": [
     {
       "step": 1,
@@ -400,6 +407,7 @@ Please watch/analyze the video and extract the recipe in this exact JSON format:
 Important:
 - Include video timestamps (startTime/endTime) for each step if possible
 - Add timerMinutes for steps that require waiting (cooking, resting, etc.)
+- Estimate nutrition values (calories, carbs, fat, protein) based on ingredients
 - Return ONLY the JSON, no additional text
 - Make sure the JSON is valid and properly formatted`;
 }
