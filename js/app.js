@@ -123,7 +123,7 @@ function createRecipeCard(recipe) {
     <div class="recipe-card-image">
       <img src="${recipe.image}" alt="${recipe.title}" loading="lazy">
       <span class="recipe-card-category">${recipe.category}</span>
-      ${recipe.isCustom ? '<span class="recipe-card-custom">Custom</span>' : ''}
+     
       ${bookmarkBtn}
       ${deleteBtn}
     </div>
