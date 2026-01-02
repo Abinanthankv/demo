@@ -2,9 +2,24 @@ const THEME_STORAGE_KEY = 'cookbook-theme';
 const OVERRIDES_STORAGE_KEY = 'cookbook-theme-overrides';
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Force re-init if common.js missed it or for secondary check
+    applyStoredTheme();
     initThemeSelection();
     initThemeEditor();
 });
+
+function applyStoredTheme() {
+    const theme = localStorage.getItem(THEME_STORAGE_KEY) || 'fresh-harvest';
+    document.documentElement.setAttribute('data-theme', theme);
+
+    const overrides = JSON.parse(localStorage.getItem(OVERRIDES_STORAGE_KEY) || '{}');
+    const themeOverrides = overrides[theme];
+    if (themeOverrides) {
+        Object.keys(themeOverrides).forEach(prop => {
+            document.documentElement.style.setProperty(prop, themeOverrides[prop]);
+        });
+    }
+}
 
 function initThemeSelection() {
     const themeCards = document.querySelectorAll('.theme-card');

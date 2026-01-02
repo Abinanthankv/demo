@@ -9,6 +9,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
+
+    <!-- Shared Logic (Theme Init) -->
+    <script src="js/common.js"></script>
     <style>
         .settings-container {
             max-width: 800px;
@@ -44,8 +47,8 @@
             cursor: pointer;
             transition: all var(--transition-fast);
             position: relative;
-            background: #fff;
-            color: #333;
+            background: var(--color-bg-card);
+            color: var(--color-text);
         }
 
         .theme-card.active {
@@ -344,6 +347,27 @@
             </div>
         </div>
     </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <a href="index.html" class="bottom-nav-item">
+            <span class="bottom-nav-icon">🏠</span>
+            <span class="bottom-nav-label">Home</span>
+        </a>
+        <a href="shopping.html" class="bottom-nav-item">
+            <span class="bottom-nav-icon">🛒</span>
+            <span class="bottom-nav-label">Shopping</span>
+            <span class="bottom-nav-badge" id="shoppingBadge"></span>
+        </a>
+        <a href="import.html" class="bottom-nav-item">
+            <span class="bottom-nav-icon">➕</span>
+            <span class="bottom-nav-label">Import</span>
+        </a>
+        <a href="settings.html" class="bottom-nav-item active">
+            <span class="bottom-nav-icon">⚙️</span>
+            <span class="bottom-nav-label">Settings</span>
+        </a>
+    </nav>
 
     <script src="js/settings.js"></script>
 </body>
