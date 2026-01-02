@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Discover delicious recipes with step-by-step guides and beautiful illustrations. Your personal digital cookbook.">
+  <title>Cookbook | Delicious Recipes Made Easy</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="container">
+      <a href="index.html" class="logo">
+        <span class="logo-icon">🍳</span>
+        <span>Cookbook</span>
+      </a>
+      
+      <nav class="nav">
+        <a href="#" class="nav-link active">Recipes</a>
+        <a href="#" class="nav-link">Categories</a>
+        <a href="#" class="nav-link">About</a>
+      </nav>
+      
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+        🌙
+      </button>
+    </div>
+  </header>
+  
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container">
+      <h1 class="hero-title">Cook Like a Pro</h1>
+      <p class="hero-subtitle">
+        Discover delicious recipes with step-by-step guides and beautiful illustrations
+      </p>
+      
+      <!-- Search Bar -->
+      <div class="search-container">
+        <div class="search-bar">
+          <span class="search-icon">🔍</span>
+          <input 
+            type="text" 
+            class="search-input" 
+            id="searchInput"
+            placeholder="Search recipes..."
+            autocomplete="off"
+          >
+        </div>
+      </div>
+      
+      <!-- Category Filters -->
+      <div class="filters" id="filters">
+        <button class="filter-btn active" data-category="all">All Recipes</button>
+        <button class="filter-btn" data-category="breakfast">🌅 Breakfast</button>
+        <button class="filter-btn" data-category="lunch">🥗 Lunch</button>
+        <button class="filter-btn" data-category="dinner">🍽️ Dinner</button>
+        <button class="filter-btn" data-category="dessert">🍰 Dessert</button>
+      </div>
+    </div>
+  </section>
+  
+  <!-- Recipes Section -->
+  <section class="recipes-section">
+    <div class="container">
+      <div class="recipe-grid" id="recipeGrid">
+        <!-- Recipes will be loaded here by JavaScript -->
+      </div>
+      
+      <!-- Empty State -->
+      <div class="empty-state" id="emptyState" style="display: none;">
+        <div class="empty-state-icon">🔍</div>
+        <h3 class="empty-state-title">No recipes found</h3>
+        <p>Try adjusting your search or filter criteria</p>
+      </div>
+    </div>
+  </section>
+  
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <p class="footer-text">
+        Made with ❤️ | <a href="https://github.com">View on GitHub</a>
+      </p>
+    </div>
+  </footer>
+  
+  <!-- Scripts -->
+  <script src="js/app.js"></script>
+</body>
+</html>
