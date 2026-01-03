@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meal Plan | Cookbook</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/styles.css">
+
+    <!-- Shared Logic -->
+    <script src="js/common.js"></script>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <a href="index.html" class="logo">
+                <span class="logo-icon">🍳</span>
+                <span>Cookbook</span>
+            </a>
+
+            <nav class="nav">
+                <a href="index.html" class="nav-link">Recipes</a>
+                <a href="shopping.html" class="nav-link">Shopping List</a>
+                <a href="meal-plan.html" class="nav-link active">Meal Plan</a>
+                <a href="import.html" class="nav-link">Import</a>
+                <a href="settings.html" class="nav-link">Settings</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container page-content">
+        <div class="page-header">
+            <h1 class="page-title">Meal Planning</h1>
+            <p class="page-subtitle">Track your cooking history and plan your next delicious meals.</p>
+        </div>
+
+        <!-- Historical Heatmap Section -->
+        <section class="meal-plan-section">
+            <div class="section-header">
+                <h2 class="section-title">Cooking History</h2>
+                <div class="calendar-legend">
+                    <span class="legend-item"><span class="dot breakfast"></span> Breakfast</span>
+                    <span class="legend-item"><span class="dot lunch"></span> Lunch</span>
+                    <span class="legend-item"><span class="dot dinner"></span> Dinner</span>
+                    <span class="legend-item"><span class="dot snack"></span> Snack</span>
+                </div>
+            </div>
+
+            <div class="calendar-card">
+                <div class="calendar-header">
+                    <button class="calendar-nav-btn" id="prevMonth">❮</button>
+                    <h3 class="current-month" id="currentMonth">Month Year</h3>
+                    <button class="calendar-nav-btn" id="nextMonth">❯</button>
+                </div>
+                <div class="calendar-grid-header">
+                    <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+                </div>
+                <div class="calendar-grid" id="calendarGrid">
+                    <!-- Calendar cells will be populated by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Future Planning Section -->
+        <section class="meal-plan-section">
+            <h2 class="section-title">Upcoming Meals</h2>
+            <div id="plannedMealsList" class="planned-meals-container">
+                <!-- Planned meals for the selected date or upcoming days -->
+                <div class="empty-state">
+                    <div class="empty-state-icon">📅</div>
+                    <p>Select a date to plan your meals</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <a href="index.html" class="bottom-nav-item">
+            <span class="bottom-nav-icon">🏠</span>
+            <span class="bottom-nav-label">Home</span>
+        </a>
+        <a href="shopping.html" class="bottom-nav-item">
+            <span class="bottom-nav-icon">🛒</span>
+            <span class="bottom-nav-label">Shopping</span>
+            <span class="bottom-nav-badge" id="shoppingBadge"></span>
+        </a>
+        <a href="meal-plan.html" class="bottom-nav-item active">
+            <span class="bottom-nav-icon">📅</span>
+            <span class="bottom-nav-label">Meal Plan</span>
+        </a>
+        <a href="import.html" class="bottom-nav-item">
+            <span class="bottom-nav-icon">➕</span>
+            <span class="bottom-nav-label">Import</span>
+        </a>
+        <a href="settings.html" class="bottom-nav-item">
+            <span class="bottom-nav-icon">⚙️</span>
+            <span class="bottom-nav-label">Settings</span>
+        </a>
+    </nav>
+
+    <!-- Recipe Selection Modal -->
+    <div class="modal" id="recipePickerModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Select Recipe</h3>
+                <button class="modal-close" id="closePicker">&times;</button>
+            </div>
+            <div class="picker-search">
+                <input type="text" id="pickerSearch" placeholder="Search recipes...">
+            </div>
+            <div class="recipe-picker-grid" id="pickerGrid">
+                <!-- Recipes to pick from -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/collections.js"></script>
+    <script src="js/meal-plan-manager.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/meal-plan.js"></script>
+</body>
+
+</html>

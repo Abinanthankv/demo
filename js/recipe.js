@@ -567,6 +567,28 @@ function initCollectionsDropdown(recipe) {
         dropdown.classList.remove('active');
     });
 
+    // Helper to update the main button text
+    window.updateCollectionButtonState = () => {
+        if (typeof Collections === 'undefined') return;
+        const myCollections = Collections.getCollectionsForRecipe(recipe.id);
+        const iconSpan = toggleBtn.querySelector('.icon');
+        const textSpan = toggleBtn.querySelector('span:not(.icon)');
+
+        if (myCollections.length > 0) {
+            toggleBtn.classList.add('active');
+            const names = myCollections.map(c => c.name).join(', ');
+            if (textSpan) textSpan.textContent = names.length > 15 ? `${names.substring(0, 15)}...` : names;
+            if (iconSpan) iconSpan.textContent = myCollections[0].icon || '📁';
+        } else {
+            toggleBtn.classList.remove('active');
+            if (textSpan) textSpan.textContent = 'Add to Collection';
+            if (iconSpan) iconSpan.textContent = '📁';
+        }
+    };
+
+    // Initial state
+    window.updateCollectionButtonState();
+
     // Populate collections
     renderCollectionsList(recipe, list);
 }
@@ -603,9 +625,375 @@ function renderCollectionsList(recipe, list) {
 
             // Re-render list
             renderCollectionsList(recipe, list);
+
+            // Update the main button text
+            if (window.updateCollectionButtonState) {
+                window.updateCollectionButtonState();
+            }
         });
     });
 }
+
+// ========================================
+// Instruction Stepper Logic
+// ========================================
+
+const RecipeStepper = {
+    isCooking: false,
+    cookStartTime: null,
+    expectedTime: 0,
+    stepTimings: [], // Stores { duration: seconds } for each step
+    currentStepStartTime: null,
+    timerInterval: null,
+
+    init(recipe) {
+        this.steps = recipe.steps;
+        this.totalSteps = recipe.steps.length;
+        this.videoUrl = recipe.videoUrl;
+        this.currentStep = 0;
+        this.isCooking = false;
+        this.cookStartTime = null;
+        this.stepTimings = [];
+        this.currentStepStartTime = null;
+        if (this.timerInterval) clearInterval(this.timerInterval);
+
+        // Helper to parse "15 min" or "1 hour" to minutes
+        const parseTime = (str) => {
+            if (!str) return 0;
+            const num = parseInt(str);
+            if (isNaN(num)) return 0;
+            if (str.toLowerCase().includes('hour')) return num * 60;
+            return num;
+        };
+        this.expectedTime = parseTime(recipe.prepTime) + parseTime(recipe.cookTime);
+
+        this.render();
+        this.updateUI();
+    },
+
+    startCooking() {
+        this.isCooking = true;
+        this.cookStartTime = Date.now();
+        this.currentStepStartTime = Date.now();
+
+        // Start live timer overlay
+        this.startLiveTimer();
+
+        this.updateUI();
+        showToast('🔥 Cooking session started!');
+
+        // Scroll to first step
+        document.getElementById('step-0')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    },
+
+    startLiveTimer() {
+        const overlay = document.getElementById('timerOverlay');
+        if (!overlay) return;
+
+        overlay.classList.add('active');
+        this.timerInterval = setInterval(() => {
+            const elapsed = Math.floor((Date.now() - this.cookStartTime) / 1000);
+            const display = document.getElementById('timerDisplay');
+            if (display) {
+                const h = Math.floor(elapsed / 3600);
+                const m = Math.floor((elapsed % 3600) / 60);
+                const s = elapsed % 60;
+                display.textContent = `${h > 0 ? h + ':' : ''}${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+            }
+        }, 1000);
+    },
+
+    render() {
+        const list = document.getElementById('stepsList');
+        if (!list) return;
+
+        list.innerHTML = `
+            <div class="cooking-timer-overlay" id="timerOverlay">
+                <div class="dot"></div>
+                <span id="timerDisplay">00:00</span>
+            </div>
+            <div class="stepper-container">
+                <div class="start-cooking-section" id="startCookingContainer">
+                    <button class="start-cooking-btn" id="startCookingBtn">
+                        <span class="icon">👨‍🍳</span> Start Cooking
+                    </button>
+                </div>
+                ${this.steps.map((step, index) => this.generateStepHtml(step, index)).join('')}
+                <div id="recipeSummaryLog"></div>
+            </div>
+            <div class="stepper-floating-controls" id="stepperControls">
+                <button class="floating-action-btn secondary icon-only" id="floatingVideoBtn">
+                    ▶️
+                </button>
+                <button class="floating-action-btn primary" id="nextStepBtn" style="display: none;">
+                    Next Step
+                </button>
+            </div>
+        `;
+
+        // Bind events
+        document.getElementById('nextStepBtn')?.addEventListener('click', () => this.nextStep());
+        document.getElementById('floatingVideoBtn')?.addEventListener('click', () => this.playCurrentStepVideo());
+        document.getElementById('startCookingBtn')?.addEventListener('click', () => this.startCooking());
+
+        // Indicator click handles
+        document.querySelectorAll('.stepper-indicator').forEach(indicator => {
+            indicator.addEventListener('click', () => {
+                const index = parseInt(indicator.dataset.index);
+                this.goToStep(index);
+            });
+        });
+    },
+
+    generateStepHtml(step, index) {
+        const hasVideo = this.videoUrl && step.startTime !== undefined;
+        let mediaHtml = '';
+
+        if (hasVideo) {
+            const videoId = extractYouTubeId(this.videoUrl);
+            const startSeconds = timeToSeconds(step.startTime);
+            const endSeconds = step.endTime ? timeToSeconds(step.endTime) : null;
+
+            let embedUrl = `https://www.youtube.com/embed/${videoId}?start=${startSeconds}`;
+            if (endSeconds) embedUrl += `&end=${endSeconds}`;
+            embedUrl += '&rel=0&modestbranding=1';
+
+            mediaHtml = `
+                <div class="stepper-media-container">
+                    <div class="step-video-container">
+                        <iframe 
+                            class="step-video"
+                            src="${embedUrl}"
+                            title="Step ${step.step}"
+                            frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen
+                        ></iframe>
+                        <div class="step-video-time">
+                            <span>📍 ${step.startTime}${step.endTime ? ` - ${step.endTime}` : ''}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        } else if (step.image) {
+            mediaHtml = `
+                <div class="stepper-media-container">
+                    <img src="${step.image}" alt="Step ${step.step}" class="stepper-image" loading="lazy">
+                </div>
+            `;
+        }
+
+        const timerHtml = step.timerMinutes ? `
+            <button class="timer-btn" onclick="CookingTimer.start(${step.timerMinutes}, 'Step ${step.step}: ${step.title}')">
+                ⏱️ Set Timer (${step.timerMinutes} min)
+            </button>
+        ` : '';
+
+        return `
+            <div class="stepper-item" id="step-${index}">
+                <div class="stepper-indicator" data-index="${index}">${index + 1}</div>
+                <div class="stepper-line">
+                    <div class="stepper-line-fill"></div>
+                </div>
+                <div class="stepper-content">
+                    <span class="stepper-label">Step ${index + 1}</span>
+                    <h3 class="stepper-title">${step.title}</h3>
+                    <p class="stepper-desc">${step.description}</p>
+                    ${step.tip ? `
+                        <div class="step-tip">
+                            <strong>💡 Tip:</strong> ${step.tip}
+                        </div>
+                    ` : ''}
+                    ${timerHtml}
+                    ${mediaHtml}
+                </div>
+            </div>
+        `;
+    },
+
+    updateUI() {
+        const items = document.querySelectorAll('.stepper-item');
+        items.forEach((item, index) => {
+            item.classList.remove('active', 'completed');
+            if (index === this.currentStep) {
+                item.classList.add('active');
+            } else if (index < this.currentStep) {
+                item.classList.add('completed');
+            }
+        });
+
+        const startBtnContainer = document.getElementById('startCookingContainer');
+        const controls = document.getElementById('stepperControls');
+        const nextBtn = document.getElementById('nextStepBtn');
+        const videoBtn = document.getElementById('floatingVideoBtn');
+        const currentStepData = this.steps[this.currentStep];
+
+        if (this.isCooking) {
+            if (startBtnContainer) startBtnContainer.style.display = 'none';
+            if (controls) controls.classList.add('visible');
+
+            if (nextBtn) {
+                nextBtn.style.display = 'flex';
+                if (this.currentStep === this.totalSteps - 1) {
+                    nextBtn.textContent = 'Finish Cooking! 🎉';
+                } else {
+                    nextBtn.textContent = 'Next Step';
+                }
+            }
+
+            if (videoBtn) {
+                videoBtn.style.display = (this.videoUrl && currentStepData.startTime !== undefined) ? 'flex' : 'none';
+                videoBtn.classList.remove('icon-only');
+                videoBtn.innerHTML = '▶️ Video Guide';
+            }
+        } else {
+            if (startBtnContainer) startBtnContainer.style.display = 'flex';
+            if (nextBtn) nextBtn.style.display = 'none';
+            if (controls) controls.classList.remove('visible');
+            if (videoBtn) videoBtn.style.display = 'none';
+        }
+
+        // Auto-scroll to current step if cooking
+        if (this.isCooking) {
+            const activeItem = document.getElementById(`step-${this.currentStep}`);
+            if (activeItem) {
+                activeItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+    },
+
+    nextStep() {
+        // Record duration for current step
+        const duration = Math.round((Date.now() - this.currentStepStartTime) / 1000);
+        this.stepTimings.push(duration);
+
+        if (this.currentStep < this.totalSteps - 1) {
+            this.currentStep++;
+            this.currentStepStartTime = Date.now(); // Start timing for next step
+            this.updateUI();
+        } else {
+            this.finishCooking();
+        }
+    },
+
+    finishCooking() {
+        if (this.timerInterval) clearInterval(this.timerInterval);
+        document.getElementById('timerOverlay')?.classList.remove('active');
+
+        const cookEndTime = Date.now();
+        const totalDurationMs = cookEndTime - this.cookStartTime;
+        const totalDurationMin = Math.round(totalDurationMs / 60000);
+
+        // Generate detailed log
+        const logContainer = document.getElementById('recipeSummaryLog');
+        if (logContainer) {
+            let logHtml = `
+                <div class="cook-summary-log">
+                    <h3 class="stepper-title" style="margin-top: 0;">📊 Cooking Performance Log</h3>
+                    <div class="summary-log-item" style="border-bottom: 2px solid var(--color-border); margin-bottom: 8px;">
+                        <span class="summary-log-label">Total Time Taken</span>
+                        <span class="summary-log-time">${totalDurationMin} minutes</span>
+                    </div>
+            `;
+
+            this.steps.forEach((step, idx) => {
+                const stepSeconds = this.stepTimings[idx] || 0;
+                const min = Math.floor(stepSeconds / 60);
+                const sec = stepSeconds % 60;
+                const timeStr = `${min > 0 ? min + 'm ' : ''}${sec}s`;
+
+                logHtml += `
+                    <div class="summary-log-item">
+                        <span class="summary-log-label">Step ${idx + 1}: ${step.title.substring(0, 25)}${step.title.length > 25 ? '...' : ''}</span>
+                        <span class="summary-log-time">${timeStr}</span>
+                    </div>
+                `;
+            });
+
+            if (this.expectedTime > 0) {
+                const diff = totalDurationMin - this.expectedTime;
+                const perfMsg = diff < 0 ? `🚀 ${Math.abs(diff)}m faster than estimate!` : (diff > 0 ? `⏱️ ${diff}m over estimate` : `🎯 Exactly on time!`);
+                logHtml += `
+                    <div class="summary-log-item" style="margin-top: 12px; font-weight: 800; border-top: 1px solid var(--color-border); padding-top: 12px;">
+                        <span class="summary-log-label">Performance</span>
+                        <span class="summary-log-time" style="color: ${diff <= 0 ? '#27ae60' : '#e67300'}">${perfMsg}</span>
+                    </div>
+                `;
+            }
+
+            logHtml += `</div>`;
+            logContainer.innerHTML = logHtml;
+            logContainer.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Integrate with "I Made This" history
+        const recipeId = getUrlParam('id');
+        if (recipeId && typeof CookHistory !== 'undefined') {
+            // Determine meal type based on current hour
+            const hour = new Date().getHours();
+            let meal = 'dinner';
+            if (hour < 11) meal = 'breakfast';
+            else if (hour < 16) meal = 'lunch';
+            else if (hour < 20) meal = 'dinner';
+            else meal = 'snack';
+
+            CookHistory.addEntry(recipeId, new Date().toISOString().split('T')[0], meal);
+
+            // Refresh History UI if function exists
+            if (typeof initCookHistoryUI === 'function') {
+                // We need the recipe object, but we might not have it here easily
+                // However, renderRecipeDetail usually has it. 
+                // For simplicity, we just notify and hopefully the UI updates on next page load or we can refresh
+                showToast(`✅ Added to "I Made This" history! (${meal})`);
+
+                // Try to find if global recipe object exists to refresh UI
+                if (window.currentRecipe) {
+                    initCookHistoryUI(window.currentRecipe);
+                }
+            }
+        }
+
+        const nextBtn = document.getElementById('nextStepBtn');
+        if (nextBtn) {
+            nextBtn.textContent = 'Cooking Complete! 🎉';
+            nextBtn.disabled = true;
+            nextBtn.style.opacity = '0.5';
+        }
+
+        showToast('👨‍🍳 Recipe complete! Check your performance log below.');
+    },
+
+    goToStep(index) {
+        if (index >= 0 && index < this.totalSteps) {
+            this.currentStep = index;
+            this.updateUI();
+        }
+    },
+
+    playCurrentStepVideo() {
+        const step = this.steps[this.currentStep];
+        if (!this.videoUrl || step.startTime === undefined) return;
+
+        const videoId = extractYouTubeId(this.videoUrl);
+        const startSeconds = timeToSeconds(step.startTime);
+
+        // Use existing video modal logic
+        const modal = document.getElementById('videoModal');
+        const playerContainer = document.getElementById('videoModalPlayer');
+
+        if (!modal || !playerContainer) return;
+
+        playerContainer.innerHTML = `
+            <iframe 
+                src="https://www.youtube.com/embed/${videoId}?autoplay=1&start=${startSeconds}&rel=0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowfullscreen>
+            </iframe>
+        `;
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+};
 
 function renderIngredients(ingredients) {
     const list = document.getElementById('ingredientsList');
@@ -633,73 +1021,8 @@ function renderIngredients(ingredients) {
     });
 }
 
-function renderSteps(steps, videoUrl) {
-    const list = document.getElementById('stepsList');
-
-    list.innerHTML = steps.map(step => {
-        // Check if step has video timing
-        const hasVideo = videoUrl && step.startTime !== undefined;
-
-        let mediaHtml;
-        if (hasVideo) {
-            // Create YouTube embed with timestamp
-            const videoId = extractYouTubeId(videoUrl);
-            const startSeconds = timeToSeconds(step.startTime);
-            const endSeconds = step.endTime ? timeToSeconds(step.endTime) : null;
-
-            // Build embed URL with parameters
-            let embedUrl = `https://www.youtube.com/embed/${videoId}?start=${startSeconds}`;
-            if (endSeconds) {
-                embedUrl += `&end=${endSeconds}`;
-            }
-            embedUrl += '&rel=0&modestbranding=1';
-
-            mediaHtml = `
-                <div class="step-video-container">
-                    <iframe 
-                        class="step-video"
-                        src="${embedUrl}"
-                        title="Step ${step.step}: ${step.title}"
-                        frameborder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowfullscreen
-                    ></iframe>
-                    <div class="step-video-time">
-                        <span>📍 ${step.startTime}${step.endTime ? ` - ${step.endTime}` : ''}</span>
-                    </div>
-                </div>
-            `;
-        } else if (step.image) {
-            // Fallback to image
-            mediaHtml = `<img src="${step.image}" alt="Step ${step.step}" class="step-image" loading="lazy">`;
-        } else {
-            mediaHtml = '';
-        }
-
-        // Timer button HTML
-        const timerHtml = step.timerMinutes ? `
-            <button class="timer-btn" onclick="CookingTimer.start(${step.timerMinutes}, 'Step ${step.step}: ${step.title}')">
-                ⏱️ Set Timer (${step.timerMinutes} min)
-            </button>
-        ` : '';
-
-        return `
-            <article class="step-card">
-                ${mediaHtml}
-                <div class="step-content">
-                    <span class="step-number">${step.step}</span>
-                    <h3 class="step-title">${step.title}</h3>
-                    <p class="step-description">${step.description}</p>
-                    ${step.tip ? `
-                        <div class="step-tip">
-                            <strong>💡 Tip:</strong> ${step.tip}
-                        </div>
-                    ` : ''}
-                    ${timerHtml}
-                </div>
-            </article>
-        `;
-    }).join('');
+function renderSteps(recipe) {
+    RecipeStepper.init(recipe);
 }
 
 // Extract YouTube video ID from various URL formats
@@ -746,9 +1069,10 @@ function renderRecipe(recipe) {
         return;
     }
 
+    window.currentRecipe = recipe; // Store globally for history refresh
     renderRecipeHero(recipe);
     renderIngredients(recipe.ingredients);
-    renderSteps(recipe.steps, recipe.videoUrl);
+    renderSteps(recipe);
     initShoppingButtons(recipe);
 }
 
